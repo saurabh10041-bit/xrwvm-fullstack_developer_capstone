@@ -29,7 +29,9 @@ SECRET_KEY =\
 DEBUG = True
 
 ALLOWED_HOSTS = []
-CSRF_TRUSTED_ORIGINS = []
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.proxy.cognitiveclass.ai",
+]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [],
