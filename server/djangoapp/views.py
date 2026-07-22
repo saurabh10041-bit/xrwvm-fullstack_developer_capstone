@@ -15,6 +15,7 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from .populate import initiate
 from .models import CarMake, CarModel
+from .restapis import get_request, analyze_review_sentiments, post_review
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -77,18 +78,33 @@ def registration(request):
         "status": "Authenticated"
     })
 
-# # Update the `get_dealerships` view to render the index page with
-# a list of dealerships
-# def get_dealerships(request):
-# ...
+def get_dealerships(request):
+    if request.method == "GET":
+        state = request.GET.get("state")
 
-# Create a `get_dealer_reviews` view to render the reviews of a dealer
-# def get_dealer_reviews(request,dealer_id):
-# ...
+        if state:
+            dealerships = get_request("/fetchDealers", state=state)
+        else:
+            dealerships = get_request("/fetchDealers")
 
-# Create a `get_dealer_details` view to render the dealer details
-# def get_dealer_details(request, dealer_id):
-# ...
+        return JsonResponse({"status": 200, "dealers": dealerships})
+
+@csrf_exempt
+def add_review(request):
+    if request.method == "POST":
+        review_data = json.loads(request.body)
+
+        sentiment = analyze_review_sentiments(review_data["review"])
+        review_data["sentiment"] = sentiment.get("sentiment", "neutral")
+
+        result = post_review(review_data)
+
+        return JsonResponse(result)
+
+def get_dealer_details(request, dealer_id):
+    if request.method == "GET":
+        dealer = get_request(f"/fetchDealer/{dealer_id}")
+        return JsonResponse({"status": 200, "dealer": dealer})
 
 # Create a `add_review` view to submit a review
 # def add_review(request):
@@ -112,4 +128,14 @@ def get_cars(request):
         })
 
     return JsonResponse({"CarModels": cars})
-    
+
+def get_dealer_reviews(request, dealer_id):
+    if request.method == "GET":
+        reviews = get_request("/fetchReviews", dealerId=str(dealer_id))
+
+        for review in reviews:
+            if "review" in review:
+                sentiment = analyze_review_sentiments(review["review"])
+                review["sentiment"] = sentiment.get("sentiment", "neutral")
+
+        return JsonResponse({"status": 200, "reviews": reviews})
