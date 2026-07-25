@@ -3,7 +3,6 @@
 # from django.shortcuts import render
 # from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
-from django.shortcuts import get_object_or_404, render, redirect
 # from django.contrib.auth import logout
 # from django.contrib import messages
 # from datetime import datetime
@@ -39,11 +38,14 @@ def login_user(request):
         data = {"userName": username, "status": "Authenticated"}
     return JsonResponse(data)
 
+
 # Create a `logout_request` view to handle sign out request
 def logout_request(request):
+
     logout(request)
     data = {"userName": ""}
     return JsonResponse(data)
+
 
 # Create a `registration` view to handle sign up request
 @csrf_exempt
@@ -78,6 +80,7 @@ def registration(request):
         "status": "Authenticated"
     })
 
+
 def get_dealerships(request, state=None):
     if request.method == "GET":
         if state:
@@ -86,6 +89,7 @@ def get_dealerships(request, state=None):
             dealerships = get_request("/fetchDealers")
 
         return JsonResponse({"status": 200, "dealers": dealerships})
+
 
 @csrf_exempt
 def add_review(request):
@@ -99,6 +103,7 @@ def add_review(request):
 
         return JsonResponse(result)
 
+
 def get_dealer_details(request, dealer_id):
     if request.method == "GET":
         dealer = get_request(f"/fetchDealer/{dealer_id}")
@@ -108,8 +113,8 @@ def get_dealer_details(request, dealer_id):
 # def add_review(request):
 # ...
 
-def get_cars(request):
 
+def get_cars(request):
     count = CarMake.objects.filter().count()
 
     if count == 0:
@@ -126,6 +131,7 @@ def get_cars(request):
         })
 
     return JsonResponse({"CarModels": cars})
+
 
 def get_dealer_reviews(request, dealer_id):
     if request.method == "GET":
