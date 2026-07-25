@@ -78,12 +78,10 @@ def registration(request):
         "status": "Authenticated"
     })
 
-def get_dealerships(request):
+def get_dealerships(request, state=None):
     if request.method == "GET":
-        state = request.GET.get("state")
-
         if state:
-            dealerships = get_request("/fetchDealers", state=state)
+            dealerships = get_request(f"/fetchDealers/{state}")
         else:
             dealerships = get_request("/fetchDealers")
 
